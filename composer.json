@@ -1,0 +1,15 @@
+{
+    "name": "filippofinke/n-gram",
+    "authors": [
+        {
+            "name": "Filippo Finke",
+            "email": "filippo.finke@samtrevano.ch"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "FilippoFinke\\": "src/"
+        }
+    }
+}
