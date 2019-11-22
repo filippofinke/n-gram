@@ -24,6 +24,25 @@ foreach ($trainingFiles as $file) {
 }
 printf("➡️ Loaded %d models!".PHP_EOL, count($cateogories));
 
+$languages = array();
+$langTraining = glob(__DIR__ . '/data/languages/*.txt');
+foreach ($langTraining as $file) {
+    $fileName = basename($file, '.txt');
+    $modelFile = __DIR__ . '/data/models/'.$fileName.'.profile';
+    if (file_exists($modelFile)) {
+        $category = Profile::load($modelFile);
+        printf("➡️ Loaded category %s from file %s!".PHP_EOL, $category->getName(), $fileName.'.txt');
+        $languages[] = $category;
+    } else {
+        printf("➡️ Training model %s from file %s!".PHP_EOL, $fileName, $fileName.'.txt');
+        $category = Categorizer::createProfile($file, $fileName, 300, 1, 5);
+        $category->save($modelFile);
+        printf("➡️ Model saved to %s!".PHP_EOL, $modelFile);
+        $languages[] = $category;
+    }
+}
+printf("➡️ Loaded %d languages!".PHP_EOL, count($languages));
+
 $testDirs = scandir(__DIR__ . '/data/test');
 $totalFiles = 0;
 $rightFiles = 0;
@@ -36,9 +55,10 @@ foreach ($testDirs as $dir) {
     printf("➡️ Testing files for category %s: %d!".PHP_EOL, $dir, count($testFiles));
     $totalFiles += count($testFiles);
     foreach ($testFiles as $file) {
-        //printf('➡️ File: %s '.PHP_EOL, basename($file));
         $result = Categorizer::categorize($file, $cateogories);
-        if ($result->getName() == $dir) {
+        $language = Categorizer::categorize($file, $languages);
+        printf('➡️ File: %s, Guessed: %s, Expected: %s, Language: %s'.PHP_EOL, basename($file), $result->getName(), $dir, $language->getName());
+        if ($result->getName() == $dir || $language->getName() == $dir) {
             $rightFiles += 1;
         } else {
             $wrongFiles += 1;

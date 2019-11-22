@@ -22,15 +22,17 @@ class Categorizer
         return $bestCategory;
     }
 
-    public static function createProfile($file, $name = null, $toKeep = 500)
+    public static function createProfile($file, $name = null, $toKeep = 500, $from = 2, $to = 5)
     {
         $content = file_get_contents($file);
+        $content = mb_convert_encoding($content, 'UTF-8',
+        mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
         $content = strtoupper($content);
         $words = str_word_count($content, 1);
         $grams = array();
 
         foreach ($words as $word) {
-            for ($n = 2; $n <= 5; $n++) {
+            for ($n = $from; $n <= $to; $n++) {
                 $currentGrams = self::toNGrams($word, $n);
                 foreach ($currentGrams as $gram) {
                     if (isset($grams[$gram])) {
